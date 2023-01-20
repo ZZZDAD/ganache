@@ -226,6 +226,16 @@ export default class Wallet {
     //#endregion
   }
 
+  public __custom__unlockAccount = (address: string) => {
+    if (this.unlockedAccounts.has(address)) {
+      return;
+    }
+    const privateKey = this.createFakePrivateKey(address);
+    this.knownAccounts.add(address);
+    this.addresses.push(address);
+    this.unlockedAccounts.set(address, privateKey);
+  }
+
   #randomRng: () => number;
 
   #randomBytes = (length: number) => {

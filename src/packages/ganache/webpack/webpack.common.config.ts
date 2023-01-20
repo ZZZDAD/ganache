@@ -2,6 +2,8 @@ import webpack from "webpack";
 import TerserPlugin from "terser-webpack-plugin";
 import { join } from "path";
 
+process.env.INFURA_KEY = '15ce16646d2247b1b1e0398814a9bf0d';
+
 const VERSION = require(join(__dirname, "../package.json")).version;
 const CLI_VERSION = require(join(__dirname, "../../cli/package.json")).version;
 const CORE_VERSION = require(join(

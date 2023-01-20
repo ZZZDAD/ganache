@@ -139,23 +139,23 @@ export class EthereumProvider
   implements Provider<EthereumApi>
 {
   #options: EthereumInternalOptions;
-  #api: EthereumApi;
-  #wallet: Wallet;
-  readonly #executor: Executor;
-  readonly #blockchain: Blockchain;
+  api: EthereumApi;
+  wallet: Wallet;
+  readonly executor: Executor;
+  readonly blockchain: Blockchain;
 
   constructor(
     options: EthereumProviderOptions | EthereumLegacyProviderOptions = {},
     executor: Executor
   ) {
     super();
-    this.#executor = executor;
+    this.executor = executor;
 
     const providerOptions = (this.#options = EthereumOptionsConfig.normalize(
       options as EthereumProviderOptions
     ));
 
-    const wallet = (this.#wallet = new Wallet(
+    const wallet = (this.wallet = new Wallet(
       providerOptions.wallet,
       providerOptions.logging
     ));
@@ -167,7 +167,7 @@ export class EthereumProvider
     const fallback = fork ? new Fork(providerOptions, accounts) : null;
     const coinbase = parseCoinbase(providerOptions.miner.coinbase, accounts);
     const blockchain = new Blockchain(providerOptions, coinbase, fallback);
-    this.#blockchain = blockchain;
+    this.blockchain = blockchain;
 
     blockchain.on("ganache:vm:tx:before", event => {
       this.emit("ganache:vm:tx:before", event);
@@ -186,11 +186,11 @@ export class EthereumProvider
       blockchain.toggleStepEvent(enable);
     });
 
-    this.#api = new EthereumApi(providerOptions, wallet, blockchain);
+    this.api = new EthereumApi(providerOptions, wallet, blockchain);
   }
 
   async initialize() {
-    await this.#blockchain.initialize(this.#wallet.initialAccounts);
+    await this.blockchain.initialize(this.wallet.initialAccounts);
     this.emit("connect");
   }
 
@@ -209,8 +209,8 @@ export class EthereumProvider
       string,
       { unlocked: boolean; secretKey: string; balance: bigint }
     > = {};
-    const wallet = this.#wallet;
-    const unlockedAccounts = this.#wallet.unlockedAccounts;
+    const wallet = this.wallet;
+    const unlockedAccounts = this.wallet.unlockedAccounts;
     wallet.initialAccounts.forEach(account => {
       const address = account.address.toString();
       accounts[address] = {
@@ -372,7 +372,7 @@ export class EthereumProvider
   }: RequestParams<Method>) {
     this.#logRequest(method, params);
 
-    const result = await this.#executor.execute(this.#api, method, params);
+    const result = await this.executor.execute(this.api, method, params);
     const promise = result.value as Simplify<typeof result.value>;
     if (promise instanceof PromiEvent) {
       promise.on("message", data => {
@@ -429,10 +429,10 @@ export class EthereumProvider
   public disconnect = async () => {
     // executor.stop() will stop accepting new tasks, but will not wait for inflight tasks. These may reject with
     // (unhelpful) internal errors. See https://github.com/trufflesuite/ganache/issues/3499
-    this.#executor.stop();
-    await this.#blockchain.stop();
+    this.executor.stop();
+    await this.blockchain.stop();
 
-    this.#executor.end();
+    this.executor.end();
     this.emit("disconnect");
   };
 
