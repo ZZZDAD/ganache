@@ -458,7 +458,11 @@ export default class Miner extends Emittery<{
     try {
       return await vm.runTx({
         tx: tx.toVmTransaction() as any,
-        block: block as any
+        block: block as any,
+        // skipHardForkValidation: true,
+        skipBlockGasLimitValidation: true,
+        skipBalance: true,
+        skipNonce: true,
       });
     } catch (err: any) {
       const errorMessage = err.message;

@@ -1173,7 +1173,8 @@ export default class Blockchain extends Emittery<BlockchainTypedEvents> {
         gasLimit: gasLeft,
         to,
         value: transaction.value == null ? 0n : transaction.value.toBigInt(),
-        block: transaction.block as any
+        block: transaction.block as any,
+        skipBalance: true,
       });
     } else {
       result = {
